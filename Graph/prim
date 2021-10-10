@@ -1,0 +1,163 @@
+#include<stdio.h>
+#include<stdlib.h>
+
+#define MAX 10
+
+#define TEMP 0  // not visited vertex
+#define PERM 1  // visited verteces 
+
+#define INFINITY 999
+#define NIL -1
+
+struct edge // defining edge o the graphs 
+{
+        int u;
+        int v;
+};
+
+int n;             // total vertices in the graph
+int tot_weight = 0;// total veight of spann tree 
+int adj[MAX][MAX]; // graph as matrix where m[i][j] = weight
+
+
+/* functions list */
+
+void create_graph();
+void prims_span_tree(int r, struct edge tree[MAX]);
+int min_temp();
+int matrix_display( );
+
+
+int main()
+{
+		printf("-----(PRIMS ALGORITHM)-----\n");
+        int root;
+        struct edge tree[MAX];
+		create_graph();
+        printf("\nEnter root vertex :-");
+        scanf("%d",&root); 
+        // Applying prims algo :-
+        prims_span_tree(root, tree);
+        printf("\nEdges of the Spanning Tree are :- \n");
+        for(int i=1; i<=n-1; i++)
+        {
+                printf("%d-> ",tree[i].u);
+                printf("%d",tree[i].v);
+                printf ("{weigth = %d} \n",adj[tree[i].u][tree[i].v]);
+                tot_weight += adj[tree[i].u][tree[i].v];
+        }
+        printf("\nWeight of spanning tree is : %d\n", tot_weight);
+        return 0;
+
+}
+//////////////////////////////
+matrix_display( ){
+	printf("\nGraph in matrix format is :-\n");
+	for (int i=0; i<n; i++){
+        	for (int j=0; j<n; j++)
+        	{
+        		printf("%-5d",adj[i][j]);
+			}
+		printf("\n");
+		}
+		
+}
+//////////////////////////////
+
+void create_graph()
+{
+        int wt; // stores weight 
+
+        printf("\nEnter number of vertices : ");
+        scanf("%d",&n);
+        for (int i=0; i<n; i++){
+        	for (int j=0; j<n; j++)
+        	{
+        		printf("\n Enter the edge weight for edge between %d - %d",i,j);
+        		printf("\n Enter -1 if no edge.");
+        		scanf("%d",&wt);
+        		adj[i][j] = wt;
+			}
+		}
+		matrix_display( );
+}
+
+
+/*--------------------------------------*/
+int prev[MAX]; 
+
+int status[MAX]; 
+
+int len[MAX];
+/*--------------------------------------*/
+
+void prims_span_tree(int r, struct edge tree[MAX])
+{
+        int Current_Vertex;
+        int count = 0;  /*number of vertices in the tree*/
+
+        // initially :- 
+        for(int i=0; i<n; i++)
+        {
+                prev[i] = NIL;
+                len[i] = INFINITY;
+                status[i] = TEMP;
+        }
+
+       
+        len[r] = 0;
+
+        while(1)
+        {
+
+            Current_Vertex = min_temp();
+
+            if(Current_Vertex == NIL)
+            {
+                if(count == n-1) // All visited 
+                    return;
+                                
+                else // Not visited vertices with length 999. 
+                    {
+                        printf("\nGraph is not connected, No spanning tree possible\n");
+                        exit(1);
+					}
+            }
+                
+        	status[Current_Vertex] = PERM;
+            if(Current_Vertex != r)
+            {
+                count++;
+                tree[count].u = prev[Current_Vertex];
+                tree[count].v = Current_Vertex;
+            }
+
+            for(int i=0; i<n; i++)
+                if(adj[Current_Vertex][i] > 0 && status[i] == TEMP)
+                    if(adj[Current_Vertex][i] < len[i])
+                        {
+                            prev[i] = Current_Vertex;
+                            len[i] = adj[Current_Vertex][i];
+                        }
+        }
+
+}
+
+
+int min_temp()
+{
+        int min = INFINITY;
+        int k = -1;
+
+        for(int i=0; i<n; i++)
+        {
+                if(status[i] == TEMP && len[i] < min) 
+                {
+                        min = len[i];
+                        k = i;
+                }
+        }
+
+        return k;
+}
+
